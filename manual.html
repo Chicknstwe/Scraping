@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Manual</title> 
+<link rel="stylesheet" type="text/css" href="/css/config.css" media="screen" />
+ </head>
+<body>
+	<nav class="parent-menu">
+	<ul>
+     <li class="sub-menu-parent">
+       <a class="title" href="scraping.php">Web scraping</a>
+       <ul class="sub-menu">
+         <li><a class="link" href="scraping.php">Scraping tool</a></li>
+         <li><a class="link" href="explorer.php">Results explorer</a></li>
+         <li><a class="link" href="results_edit.php?results=webs">Web results edition</a></li>
+       </ul>
+     </li>
+     <li class="sub-menu-parent"><a class="title" href="twitter.php">Twitter API</a>
+       <ul class="sub-menu">
+         <li><a class="link" href="twitter.php">Tweets collector</a></li>
+         <li><a class="link" href="explorer.php">Results explorer</a></li>
+		 <li><a class="link" href="results_edit.php?results=tweets">Twitter results edition</a></li>
+		 <li><a class="link" href="tweets_to_png.php">Tweet-to-PNG converter</a></li>
+		 <li><a class="link" href="excel_export.php">Excell exporter</a></li>
+       </ul>
+     </li>
+     <li class="sub-menu-parent"><a class="title" href="config.php">Configuration</a>
+       <ul class="sub-menu">
+         <li><a class="link" href="config.php">Settings</a></li>
+		 <li><a class="link" href="manual.html">Manual</a></li>
+         <li><a class="link" href="faq.html">FAQ</a></li>
+		 <li><a class="link" href="about.html">About</a></li>
+       </ul></li>
+   </ul>
+	</nav>
+
+	<br><br><br><br><br>
+	<table class="table-fill">
+	<tr><th>How to install</th></tr>
+	<tr><td><strong>Install with XAMPP</strong></td></tr>
+	<tr><td>First of all, download XAMPP <a href="https://www.apachefriends.org/es/index.html">here</a> and install it.<br />
+	Look for the directory where XAMPP has been installed and open it. There should be a folder called "htdocs". 
+	Open it and extract here every file from Scraping tool.rar (or Scraping tool.tar.gz).<br />
+	Now we have to edit a couple of things in a file called php.ini. You may find it at "Xampp/php/". Now find:<br />
+	<ul><li>"max_execution_time" and set its value to 9999999999. If there are semicolons (";") before "max_execution_time", remove them.</li>
+	<li>"output_buffering" and set it to On or any integer number if it is off. If there are semicolons (";") before "output_buffering", remove them.</li></ul>
+	</td></tr>
+	<tr><td><strong>Install Pear, OLE and Excel packages</strong></td></tr>
+	<tr><td>Excel exporter needs the following packages to be installed. You may find detailed info to install them here:<br />
+	<ul><li><a href="https://pear.php.net/package/PEAR">Link to Pear package page</a>.</li>
+	<li><a href="https://pear.php.net/package/OLE/">Link to OLE package page</a>.</li>
+	<li><a href="https://pear.php.net/package/Spreadsheet_Excel_Writer">Link to Excel package page</a>.</li></ul>
+	</td></tr>
+	<tr><td><strong>Twitter dev tokens</strong></td></tr>
+	<tr><td>Tweets collector require some tokens povided by Twitter. To get yours, you must sing up at <a href="https://apps.twitter.com/">apps.twitter.com</a> and "Create a new app". You may use the following data to fill in some of the fields:<br />
+	<ul><li>Name: Scraping tool.</li>
+	<li>Website: https://github.com/Chicknstwe/Scraping.</li></ul>
+	After that, just go to the "Keys and Access Tokens" section to get your own tokens and copy&paste them into their respective fields in "Settings" section of this application.<br />	
+	</td></tr>
+	<tr><td><strong>Install curl cert</strong></td></tr>
+	<tr><td>Tweets collector uses curl so you have to download <a href="https://curl.haxx.se/docs/caextract.html">this cretificate</a> and place it somewhere in Xmapp's folder, for example at "Xampp\php\extras\openssl\".<br />
+	Now go to "php.ini", the same file we edited previously. Find "curl.cainfo" and "openssl.cafile" and set them to the ABSOLUTE PATH of the "cacert.pem" certificate, wherever you placed it.</td></tr>
+	</table>
+	<br><br>
+	<table class="table-fill">
+	<tr><th>Warnings and recommendations for use</th></tr>
+	<tr><td><ul>
+	<li>Scraping tool execution time will be longer depending on whether you run it with more or less executions. It will be definitely longer if you make it download images and documents.</li>
+	<li>NEVER stop the scripts (closing the tab or the browser, for example) while they are running. If you do, it will produce many errors on registers. You can fix those errors by using the reset buttons at config section, but you will lose all the information.</li>
+	<li>The scraping toool search is case sensitive, so make sure you use the correct keywords.</li>
+	<li>The scraping tool use REGEX to look for keywords in html files. They are powerful, but has some limitations, so use this tool carefully.</li>
+	<li>You should run this code in an "up to date" browser.</li>
+	<li>This code is open source and has a MIT license that covers everything except sorttable.js and TwitterAPIExchange.php libraries. You can use it without restrictions but don't claim it as yours. </li>
+	</ul></td></tr>
+	</table>
+	<br><br>	
+</body>
+</html>
