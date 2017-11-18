@@ -43,8 +43,9 @@
 	Look for the directory where XAMPP has been installed and open it. There should be a folder called "htdocs". 
 	Open it and extract here every file from Scraping tool.rar (or Scraping tool.tar.gz).<br />
 	Now we have to edit a couple of things in a file called php.ini. You may find it at "Xampp/php/". Now find:<br />
-	<ul><li>"max_execution_time" and set its value to 9999999999. If there are semicolons (";") before "max_execution_time", remove them.</li>
+	<ul><li>"max_execution_time" and set its value to 90000. If there are semicolons (";") before "max_execution_time", remove them. The same for "max_input_time" and also set "memory_limit" to "5000M".</li>
 	<li>"output_buffering" and set it to On or any integer number if it is off. If there are semicolons (";") before "output_buffering", remove them.</li></ul>
+	To enable Xampp just open the Xampp Control Panel and click "Start" on Apache service. Apache must be running to use the scripts, and it stops every time you shutdown your computer.
 	</td></tr>
 	<tr><td><strong>Install Pear, OLE and Excel packages</strong></td></tr>
 	<tr><td>Excel exporter needs the following packages to be installed. You may find detailed info to install them here:<br />
@@ -66,6 +67,7 @@
 	<table class="table-fill">
 	<tr><th>Warnings and recommendations for use</th></tr>
 	<tr><td><ul>
+	<li>To "wake up" the Scraping tool progress bar, run once the script (1 execution with 1 url using 1 keyword is enough). The bar will be active as long as you don't close that tab.</li>
 	<li>Scraping tool execution time will be longer depending on whether you run it with more or less executions. It will be definitely longer if you make it download images and documents.</li>
 	<li>NEVER stop the scripts (closing the tab or the browser, for example) while they are running. If you do, it will produce many errors on registers. You can fix those errors by using the reset buttons at config section, but you will lose all the information.</li>
 	<li>The scraping toool search is case sensitive, so make sure you use the correct keywords.</li>
