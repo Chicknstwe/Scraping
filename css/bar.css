@@ -1,0 +1,31 @@
+.meter-wrap{
+    margin: 0 auto 1em auto;
+    position: relative;
+	
+	}
+
+.meter-wrap, .meter-value, .meter-text {
+    /* The width and height of your image */
+    width: 270px; height: 35px;
+}
+
+.meter-wrap, .meter-value {
+    background: #bdbdbd url(meter-outline.png) top left no-repeat;
+	border-radius: 0.1em;
+	
+}
+            
+.meter-text {
+    position: absolute;
+    padding-top: 7px;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+}
+
+.output-text
+{
+	
+	text-align: center;
+
+}
