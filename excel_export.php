@@ -2,7 +2,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Excel exporter</title>
-<script src="/js/sorttable.js"></script>
 <script src="/js/tools.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/results_edit.css" media="screen" />
 </head>
@@ -38,8 +37,10 @@
 <?php
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	extract($_POST);
-	if(isset($_REQUEST['export_tweets'])) {
-		$input = $_REQUEST['export_tweets'];
+	$acc = $_REQUEST['button'];
+	var_dump($acc);
+	if(isset($_REQUEST['export_tweets_' . $acc])) {
+		$input = $_REQUEST['export_tweets_' . $acc];
 		require_once 'Spreadsheet/Excel/Writer.php';
 	} else {
 		$input = array();
@@ -83,7 +84,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	} else {
 ?>
 		<script language="javascript">alert("You must choose at least one tweet.");</script>
+		
 <?php
+		var_dump($input);
 	}
 }
 ?>
@@ -96,19 +99,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			if (sizeof($content) > 0) {
 ?>
 				<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-				<table class="sortable" id="<?php echo 'tweets' . $account;?>"><form action="excel_export.php" method="post" enctype="multipart/form-data">
+				<table class="sortable"  style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="excel_export.php" method="post" enctype="multipart/form-data">
 				<tr><th><input type="checkbox" id="checkall_export_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('export_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
 <?php
 				foreach($content as $tweet_id => $tweet) {
 ?>
-					<tr><td><input type="checkbox" name="export_tweets_<?php echo utf8_encode($account);?>[]" value="<?php echo $account . '.' . $tweet[4]?>"></td><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td><?php echo $tweet[8]; ?></td><td><?php echo $tweet[9]; ?></td></tr>
+					<tr><td><input type="checkbox" name="export_tweets_<?php echo $account;?>[]" value="<?php echo $account . '.' . $tweet[4]?>"></td><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td><?php echo $tweet[8]; ?></td><td><?php echo $tweet[9]; ?></td></tr>
 <?php
 				}
 				
 ?>
 				</table>
-				<table class="sorttable-lit" id="<?php echo 'tweets' . $account . 'delete'; ?>">
-				<tr><td class="button"><button type="submit" class="amp">Export</button></td></tr>
+				<table class="sorttable-lit"  style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
+				<tr><td class="button"><button type="submit" name="button" value="<?php echo $account; ?>" class="amp">Export</button></td></tr>
 				</form></table>
 <?php
 				
