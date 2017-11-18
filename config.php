@@ -63,16 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				  $size = sizeof($websites);
 				  $i=0;
 				  while ($i < $size) {
-					  if ($url == $websites[$i] || $name == $names[$i]) {
+					  if ($url == $websites[$i] || $name == $names[$websites[$i]]) {
 						  $exists = true;
 					  }
 					  $i++;
 				  }
 				  if (!$exists) {
 					  array_push($websites, $url);
-					  array_push($names, $name);
+					  $names[$url] = $name;
 					  addResources($websites, $names, $keywords, $twitter_accs);
-					  if ($websites[sizeof($websites) - 1] == $url &&  $names[sizeof($websites) - 1] == $name) {
+					  if ($websites[sizeof($websites) - 1] == $url &&  $names[$websites[sizeof($websites) - 1]] == $name) {
 						  $output = "The new web has been added.";
 					  } else {
 						  $output = "The name or url has not been added.";
@@ -85,12 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			  }
 		  } elseif ($web_select > -1 && $web_select !== '') {
 			  $delete_web_test = $websites[$web_select];
-			  $delete_name_test = $names[$web_select];
+			  $delete_name_test = $names[$websites[$web_select]];
+			  unset($names[$websites[$web_select]]);
 			  array_splice($websites, $web_select, 1);
-			  array_splice($names, $web_select, 1);
 			  addResources($websites, $names, $keywords, $twitter_accs);
 			  if (sizeof($websites) > $web_select) {
-				  if ($websites[$web_select] != $delete_web_test && $names[$web_select] != $delete_name_test) {
+				  if ($websites[$web_select] != $delete_web_test && $names[$websites[$web_select]] != $delete_name_test) {
 					  $output = "The website has been deleted successfully.";
 				  } else {
 					  $output = "The website has not been deleted properly. A reset of the resources registers may be necessary. Alternatively you can edit them in app/libs/resources.inc.php.";
@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	while ($i < $size) {
 		if (isset($websites[$i])) {
 ?>
-			<option value="<?php echo $i; ?>"><?php echo utf8_encode($names[$i]) . " (" . utf8_encode($websites[$i]); ?>)</option>
+			<option value="<?php echo $i; ?>"><?php echo $names[$websites[$i]] . " (" . $websites[$i]; ?>)</option>
 <?php
 		}
 		$i++;
