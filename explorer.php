@@ -45,11 +45,19 @@
 	while ($categoria = readdir($open_root)) {
 		if($categoria!="." AND $categoria!="..") {
 			$path="matches/" . $categoria . "";
+			$img_path="matches/" . $categoria . "/imgs";
+			$doc_path="matches/" . $categoria . "/docs";
 			$carpeta=opendir($path);
+
+			if(sizeof(scandir($path)) > 4 || (file_exists($img_path) && sizeof(scandir($img_path)) > 2) || (file_exists($doc_path) && sizeof(scandir($doc_path)) > 2)) {
+?>
+				<p><strong><?php echo 'Web: '. modSpace($categoria); ?></strong> <a class="toggle" id="<?php echo $categoria . 'toggle'; ?>" href="javascript:showhide('<?php echo $categoria; ?>');">+</a></p>
+<?php
+			}
 			if(sizeof(scandir($path)) > 4) {
 ?>
-				<p><strong><?php echo 'Web: '. utf8_encode($categoria); ?></strong> <a class="toggle" id="<?php echo utf8_encode($categoria) . 'toggle'; ?>" href="javascript:showhide('<?php echo utf8_encode($categoria); ?>');">+</a></p>
-				<table class="sortable" id="<?php echo utf8_encode($categoria); ?>">
+				
+				<table class="sortable" style="display: none;" id="<?php echo $categoria; ?>">
 				<tr><th>File</th><th>Keywords</th><th>Link</th></tr>
 <?php
 				while ($archivo = readdir($carpeta)) {
@@ -58,7 +66,7 @@
 ?>
 						<tr><td class="left-col"><font><?php echo $url; ?></font></td>
 						<td width="160"><?php echo static_keywords_matches("./matches/" . $categoria . "/" . $archivo . ""); ?></td>
-						<td width="100"><a href="matches/<?php echo $categoria . "/" . $archivo; ?>">Link</a></td>
+						<td width="100"><a href="matches/<?php echo $categoria . "/" . urlencode($archivo); ?>">Link</a></td>
 						</tr>
 <?php
 					}
@@ -69,11 +77,11 @@
 <?php
 			}
 			$name=utf8_encode($categoria);
-			$img_path="matches/" . $categoria . "/imgs";
+			
 			if (file_exists($img_path) && sizeof(scandir($img_path)) > 2) {
 ?>
-				<table class="sortable" id="<?php echo $name . "img"; ?>"><tr bgcolor="00a699" width="200">
-				<th colspan=3 align="center"><font><strong><?php echo $name . " - Images"; ?></strong></font></th>
+				<table class="sortable" style="display: none;" id="<?php echo $categoria . "img"; ?>"><tr bgcolor="00a699" width="200">
+				<th colspan=3 align="center"><font><strong><?php echo modSpace($name) . " - Images"; ?></strong></font></th>
 <?php
 				$carpeta=opendir($img_path);
 				while ($archivo = readdir($carpeta)) {
@@ -81,7 +89,7 @@
 						$url = ucfirst(urldecode($archivo));
 ?>
 						<tr><td class="left-col"><font><?php echo $url; ?></font></td>
-						<td width="260" colspan=2 align="center"><a href="matches<?php echo $categoria . "/imgs/" . $archivo; ?>">Link</a></td>
+						<td width="260" colspan=2 align="center"><a href="matches/<?php echo $categoria . "/imgs/" . urlencode($archivo); ?>">Link</a></td>
 						</tr>
 <?php
 					}
@@ -93,8 +101,8 @@
 			$doc_path="matches/" . $categoria . "/docs";
 			if (file_exists($doc_path) && sizeof(scandir($doc_path)) > 2) {
 ?>
-				<table class="sortable" id="<?php echo $name . "docs"; ?>"><tr bgcolor="00a699" width="200">
-				<th colspan=3><font><strong><?php echo $name . " - Documents"; ?></strong></font></th>
+				<table class="sortable" style="display: none;" id="<?php echo $categoria . "docs"; ?>"><tr bgcolor="00a699" width="200">
+				<th colspan=3><font><strong><?php echo modSpace($name) . " - Documents"; ?></strong></font></th>
 <?php
 				$carpeta=opendir($doc_path);
 				while ($archivo = readdir($carpeta)) {
@@ -102,7 +110,7 @@
 						$url = ucfirst(urldecode($archivo));
 ?>
 						<tr class="left-col"><td width="400"><font><?php echo $url; ?></font></td>
-						<td width="260" colspan=2 align="center"><a href="matches/<?php echo $categoria . "/docs/" . $archivo?>">Link</a></td>
+						<td width="260" colspan=2 align="center"><a href="matches/<?php echo $categoria . "/docs/" . urlencode($archivo);?>">Link</a></td>
 						</tr>
 <?php
 					}
@@ -121,7 +129,7 @@
 			if (sizeof($content) > 0) {
 ?>
 				<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-				<table class="sortable" id="<?php echo 'tweets' . $account;?>">
+				<table class="sortable" style="display: none;" id="<?php echo 'tweets' . $account;?>">
 				<tr><th class="tweet-cell">Date</th><th>Image</th><th>Tweet</th><th>Keywords</th><th>Link</th><th>Entities</th><th>Favs</th><th>RT</th></tr>
 <?php
 				foreach($content as $tweet_id => $tweet) {
