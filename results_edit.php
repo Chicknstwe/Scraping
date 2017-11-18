@@ -74,7 +74,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		foreach($input as $raw_tw) {
 			$tw = explode('.', $raw_tw);
 			unset($tweets[$tw[0]][$tw[1]]);
-			array_splice($twitter_reg[$tw[0]], $tw[1], 1);
+			array_splice($twitter_reg[$tw[0]], array_search($tw[1], $twitter_reg[$tw[0]]), 1);
 		}
 		addTwitterReg($tweets, $twitter_reg);
 ?>
@@ -98,18 +98,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		while ($categoria = readdir($open_root)) {
 			if($categoria!="." AND $categoria!="..") {
 				$path="matches/" . $categoria . "";
+				$img_path="matches/" . $categoria . "/imgs";
+				$doc_path="matches/" . $categoria . "/docs";
 				$carpeta=opendir($path);
+				if(sizeof(scandir($path)) > 4 || (file_exists($img_path) && sizeof(scandir($img_path)) > 2) || (file_exists($doc_path) && sizeof(scandir($doc_path)) > 2)) {
+?>
+					<p><strong><?php echo 'Web: '. modSpace($categoria); ?></strong> <a class="toggle" id="<?php echo $categoria . 'toggle'; ?>" href="javascript:showhide('<?php echo $categoria; ?>');">+</a></p><form action="results_edit.php" method="post" enctype="multipart/form-data">
+<?php
+				}
+				
+				
+				
 				if(sizeof(scandir($path)) > 4) {
 ?>
-					<p><strong><?php echo 'Web: '. utf8_encode($categoria); ?></strong> <a class="toggle" id="<?php echo utf8_encode($categoria) . 'toggle'; ?>" href="javascript:showhide('<?php echo utf8_encode($categoria); ?>');">+</a></p>
-					<table class="sortable" id="<?php echo utf8_encode($categoria); ?>"><form action="results_edit.php" method="post" enctype="multipart/form-data">
-					<tr><th><input type="checkbox" id="checkall_edit_webs_<?php echo utf8_encode($categoria);?>" onchange="checkAllElements('edit_webs_<?php echo utf8_encode($categoria);?>')"></th><th>File</th><th>Keywords</th></tr>
+					<table class="sortable" style="display: none;"id="<?php echo $categoria; ?>">
+					<tr><th><input type="checkbox" id="checkall_edit_webs_<?php echo $categoria;?>" onchange="checkAllElements('edit_webs_<?php echo $categoria;?>')"></th><th>File</th><th>Keywords</th></tr>
 <?php
 					while ($archivo = readdir($carpeta)) {
 						if($archivo!="." AND $archivo!=".." AND $archivo!="imgs" AND $archivo!="docs") {
 							$url = ucfirst(urldecode($archivo));
 ?>
-							<tr><td><input type="checkbox" name="edit_webs_<?php echo utf8_encode($categoria);?>[]" value="matches/<?php echo $categoria . "/" . $archivo; ?>"></td>
+							<tr><td><input type="checkbox" name="edit_webs_<?php echo $categoria;?>[]" value="matches/<?php echo $categoria . "/" . $archivo; ?>"></td>
 							<td class="left-col"><font><?php echo $url; ?></font></td>
 							<td width="160"><?php echo static_keywords_matches("./matches/" . $categoria . "/" . $archivo . ""); ?></td>
 							</tr>
@@ -120,19 +129,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 					</table>
 <?php
 				}
-				$name=utf8_encode($categoria);
-				$img_path="matches/" . $categoria . "/imgs";
+				$name=modSpace($categoria);
 				if (file_exists($img_path) && sizeof(scandir($img_path)) > 2) {
 ?>
-					<table class="sortable" id="<?php echo $name . "img"; ?>"><tr bgcolor="00a699" width="200">
-					<th><input type="checkbox" id="checkall_edit_webs_<?php echo utf8_encode($categoria);?>_imgs" onchange="checkAllElements('edit_webs_<?php echo utf8_encode($categoria);?>_imgs')"></th><th colspan=3 align="center"><font><strong><?php echo $name . " - Images"; ?></strong></font></th>
+					<table class="sortable" style="display: none;" id="<?php echo $categoria . "img"; ?>"><tr bgcolor="00a699" width="200">
+					<th><input type="checkbox" id="checkall_edit_webs_<?php echo $categoria;?>_imgs" onchange="checkAllElements('edit_webs_<?php echo $categoria;?>_imgs')"></th><th colspan=3 align="center"><font><strong><?php echo $name . " - Images"; ?></strong></font></th>
 <?php
 					$carpeta=opendir($img_path);
 					while ($archivo = readdir($carpeta)) {
 						if($archivo!="." AND $archivo!=".." AND $archivo!="imgs" AND $archivo!="docs") {
 							$url = ucfirst(urldecode($archivo));
 ?>
-							<tr><td><input type="checkbox" name="edit_webs_<?php echo utf8_encode($categoria);?>_imgs[]" value="matches/<?php echo $categoria . "/imgs/" . $archivo; ?>"></td>
+							<tr><td><input type="checkbox" name="edit_webs_<?php echo $categoria;?>_imgs[]" value="matches/<?php echo $categoria . "/imgs/" . $archivo; ?>"></td>
 							<td class="left-col"><font><?php echo $url; ?></font></td>
 							</tr>
 <?php
@@ -142,18 +150,18 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 					</table>
 <?php
 				}
-				$doc_path="matches/" . $categoria . "/docs";
+				
 				if (file_exists($doc_path) && sizeof(scandir($doc_path)) > 2) {
 ?>
-					<table class="sortable" id="<?php echo $name . "docs"; ?>"><tr bgcolor="00a699" width="200">
-					<th><input type="checkbox" id="checkall_edit_webs_<?php echo utf8_encode($categoria);?>_docs" onchange="checkAllElements('edit_webs_<?php echo utf8_encode($categoria);?>_docs')"></th><th colspan=3><font><strong><?php echo $name . " - Documents"; ?></strong></font></th>
+					<table class="sortable" style="display: none;" id="<?php echo $categoria . "docs"; ?>"><tr bgcolor="00a699" width="200">
+					<th><input type="checkbox" id="checkall_edit_webs_<?php echo $categoria;?>_docs" onchange="checkAllElements('edit_webs_<?php echo $categoria;?>_docs')"></th><th colspan=3><font><strong><?php echo $name . " - Documents"; ?></strong></font></th>
 <?php
 					$carpeta=opendir($doc_path);
 					while ($archivo = readdir($carpeta)) {
 						if($archivo!="." AND $archivo!=".." AND $archivo!="imgs" AND $archivo!="docs") {
 							$url = ucfirst(urldecode($archivo));
 ?>
-							<tr class="left-col"><td><input type="checkbox" name="edit_webs_<?php echo utf8_encode($categoria);?>_docs[]" value="matches/<?php echo $categoria . "/docs/" . $archivo; ?>"></td>
+							<tr class="left-col"><td><input type="checkbox" name="edit_webs_<?php echo $categoria;?>_docs[]" value="matches/<?php echo $categoria . "/docs/" . $archivo; ?>"></td>
 							<td width="400"><font><?php echo $url; ?></font></td>
 							</tr>
 <?php
@@ -168,8 +176,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			
 			if($categoria!="." AND $categoria!="..") {
 ?>
-				<table class="sorttable-lit" id="<?php echo $name . 'delete'; ?>">
-				<tr><td class="button"><button type="submit" class="amp"  name="delete_button" value="webs.<?php echo utf8_encode($categoria);?>">Delete</button></td></tr>
+				<table class="sorttable-lit" style="display: none;" id="<?php echo $categoria . 'delete'; ?>">
+				<tr><td class="button"><button type="submit" class="amp"  name="delete_button" value="webs.<?php echo $categoria;?>">Delete</button></td></tr>
 				</form>
 				</table>
 			
@@ -185,7 +193,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 				if (sizeof($content) > 0) {
 ?>
 					<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-					<table class="sortable" id="<?php echo 'tweets' . $account;?>"><form action="results_edit.php" method="post" enctype="multipart/form-data">
+					<table class="sortable" style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="results_edit.php" method="post" enctype="multipart/form-data">
 					<tr><th><input type="checkbox" id="checkall_edit_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('edit_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
 <?php
 					foreach($content as $tweet_id => $tweet) {
@@ -196,7 +204,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 					
 ?>
 					</table>
-					<table class="sorttable-lit" id="<?php echo 'tweets' . $account . 'delete'; ?>">
+					<table class="sorttable-lit" style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
 					<tr><td class="button"><button type="submit" class="amp"  name="delete_button" value="tweets.<?php echo utf8_encode($account); ?>">Delete</button></td></tr>
 					</form></table>
 <?php
