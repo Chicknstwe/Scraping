@@ -41,16 +41,10 @@
 	<select name="twitter_user_select" size="1">
 	
 <?php
-	$twitter_users = array_keys($tweets);
-	$size=sizeof($twitter_users);
-	$i=0;
-	while ($i < $size) {
-		if (isset($twitter_users[$i])) {
+	foreach ($twitter_accs as $acc) {
 ?>
-			<option value="<?php echo $twitter_users[$i]; ?>">@<?php echo urldecode($twitter_users[$i]); ?></option>
+			<option value="<?php echo $acc; ?>">@<?php echo urldecode($acc); ?></option>
 <?php
-		}
-		$i++;
 	}
 ?>	
 
@@ -83,6 +77,7 @@
 
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	extract($_POST);
+	
   
 	if(isConnected()) {
 
