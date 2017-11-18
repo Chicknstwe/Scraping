@@ -21,7 +21,16 @@ function arrayToStringC($arr, $type) {
 	}
 	
 	  while ($i < $size) {
-		  if ($type == 6) {
+		  if ($type == 1) {
+			  $x = 1;
+			  foreach($arr as $key => $value) {
+				  $out = $out . "'" . $key . "' => '" . $value . "'";
+				  if($x < sizeof($arr)) {
+					  $out = $out . ", ";
+				  }
+				  $x++;
+			  }
+		  } elseif ($type == 6) {
 			  $out = $out . '"' . $keys[$i] . '" => array(';
 			  $account = $arr[$keys[$i]];
 			  $acc_keys = array_keys($account);
@@ -79,6 +88,16 @@ function arrayToStringC($arr, $type) {
 	  $out = $out . ");\n";
 
 	return $out;
+}
+
+function modSpace($string) {
+	
+	if(strpos($string, '__0__')) {
+		$string = str_replace('__0__', ' ', $string);
+	} elseif(strpos($string, ' ')) {
+		$string = str_replace(' ', '__0__', $string);
+	}
+	return $string;
 }
 
 function keywords_matches($path, $keywords) {
@@ -363,7 +382,7 @@ function tag_img_extractor($s) {
 }
 
 function valid_chars($s) {
-	$forb_chars = array('?', '/', '|', '<', '>', '"', ':', '*');
+	$forb_chars = array('?', '/', '|', '<', '>', '"', ':', '*', '&');
 	$s = str_replace($forb_chars, "-", $s);
 	
 	return $s;
@@ -425,6 +444,16 @@ function deleteFile($path) {
 	  unlink(utf8_decode($path));
 	} elseif (is_dir(utf8_decode($path))) {
 	  rrmdir(utf8_decode($path));
+	}
+	if (is_file(urldecode($path))) {
+	  unlink(urldecode($path));
+	} elseif (is_dir(urldecode($path))) {
+	  rrmdir(urldecode($path));
+	}
+	if (is_file(urlencode($path))) {
+	  unlink(urlencode($path));
+	} elseif (is_dir(urlencode($path))) {
+	  rrmdir(urlencode($path));
 	}
 }
 
