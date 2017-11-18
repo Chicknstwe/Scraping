@@ -1,36 +1,48 @@
 function showhide(id){
-	if (document.getElementById){ 
-		obj = document.getElementById(id);
-		obj_img = document.getElementById(id + 'img');
-		obj_docs = document.getElementById(id + 'docs');
-		obj_delete = document.getElementById(id + 'delete');
-		tag = document.getElementById(id + 'toggle')
-		if (obj.style.display != "none"){
-			tag.innerHTML = '+';
+	obj = document.getElementById(id);
+	obj_img = document.getElementById(id + 'img');
+	obj_docs = document.getElementById(id + 'docs');
+	obj_delete = document.getElementById(id + 'delete');
+	tag = document.getElementById(id + 'toggle');
+	
+	if (obj != null) {
+		test = obj;
+	} else if (obj_img != null) {
+		test = obj_img;
+	} else if (obj_docs != null) {
+		test = obj_docs;
+	}
+	
+	if (test.style.display == "table"){
+		tag.innerHTML = '+';
+		if (obj != null) {
 			obj.style.display = "none";
-			if (obj_img !== null) {
-				obj_img.style.display = "none";
-			}
-			if (obj_docs !== null) {
-				obj_docs.style.display = "none";
-			}
-			if (obj_delete !== null) {
-				obj_delete.style.display = "none";
-			}
-		} else {
-			tag.innerHTML = '-';
-			if (obj_img !== null) {
-				obj_img.style.display = "table";
-			}
-			if (obj_docs !== null) {
-				obj_docs.style.display = "table";
-			}
-			if (obj_delete !== null) {
-				obj_delete.style.display = "table";
-			}
-			obj.style.display = "table"; 
+		}
+		if (obj_img != null) {
+			obj_img.style.display = "none";
+		}
+		if (obj_docs != null) {
+			obj_docs.style.display = "none";
+		}
+		if (obj_delete != null) {
+			obj_delete.style.display = "none";
+		}
+	} else {
+		tag.innerHTML = '-';
+		if (obj_img != null) {
+			obj_img.style.display = "table";
+		}
+		if (obj_docs != null) {
+			obj_docs.style.display = "table";
+		}
+		if (obj_delete != null) {
+			obj_delete.style.display = "table";
+		}
+		if (obj != null) {
+			obj.style.display = "table";
 		} 
-	} 
+	}  
+	
 }
 
 function checkAllKeywords(){
