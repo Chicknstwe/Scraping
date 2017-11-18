@@ -2,7 +2,6 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Tweets-to-PNG converter</title>
-<script src="/js/sorttable.js"></script>
 <script src="/js/tools.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/results_edit.css" media="screen" />
 </head>
@@ -38,8 +37,9 @@
 <?php
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	extract($_POST);
-	if(isset($_REQUEST['convert_tweets'])) {
-		$input = $_REQUEST['convert_tweets'];
+	$acc = $_REQUEST['button'];
+	if(isset($_REQUEST['convert_tweets_' . $acc])) {
+		$input = $_REQUEST['convert_tweets_' . $acc];
 	} else {
 		$input = array();
 	}
@@ -72,7 +72,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			if (sizeof($content) > 0) {
 ?>
 				<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-				<table class="sortable" id="<?php echo 'tweets' . $account;?>"><form action="tweets_to_png.php" method="post" enctype="multipart/form-data">
+				<table class="sortable"  style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="tweets_to_png.php" method="post" enctype="multipart/form-data">
 				<tr><th><input type="checkbox" id="checkall_convert_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('convert_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
 <?php
 				foreach($content as $tweet_id => $tweet) {
@@ -83,8 +83,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 				
 ?>
 				</table>
-				<table class="sorttable-lit" id="<?php echo 'tweets' . $account . 'delete'; ?>">
-				<tr><td class="button"><button type="submit" class="amp">Convert</button></td></tr>
+				<table class="sorttable-lit" style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
+				<tr><td class="button"><button type="submit" class="amp" name="button" value="<?php echo $account; ?>">Convert</button></td></tr>
 				</form></table>
 <?php
 				
