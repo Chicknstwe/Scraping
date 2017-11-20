@@ -38,7 +38,6 @@
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	extract($_POST);
 	$acc = $_REQUEST['button'];
-	var_dump($acc);
 	if(isset($_REQUEST['export_tweets_' . $acc])) {
 		$input = $_REQUEST['export_tweets_' . $acc];
 		require_once 'Spreadsheet/Excel/Writer.php';
@@ -79,14 +78,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		$workbook->close();
 ?>
 		<script language="javascript">alert("<?php echo $exported_tweets; ?> tweets have been exported into <?php echo addslashes(dirname(__FILE__)) . '/Exports/' . $account . '-' . date('Y-m-d') . '_' . date('H:i:s') . '.xls'; ?>");</script>
-	
+		<META HTTP-EQUIV="Refresh" Content="0; URL=">
 <?php
 	} else {
 ?>
 		<script language="javascript">alert("You must choose at least one tweet.");</script>
 		
 <?php
-		var_dump($input);
 	}
 }
 ?>
