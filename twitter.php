@@ -182,7 +182,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 				<script language="javascript">alert("The script has been executed.");</script>
 <?php	
-		} 
+		} else {
+?>
+			<script language="javascript">alert("<?php echo $rawdata; ?>");</script>
+<?php			
+		}
+			
 	} else {
 ?>
 		<script language="javascript">alert("You are not connected to the internet.");</script>
