@@ -42,16 +42,18 @@
 	<tr><td>First of all, download XAMPP <a href="https://www.apachefriends.org/es/index.html">here</a> and install it.<br />
 	Look for the directory where XAMPP has been installed and open it. There should be a folder called "htdocs". 
 	Open it and extract here every file from Scraping tool.rar (or Scraping tool.tar.gz).<br />
-	Now we have to edit a couple of things in a file called php.ini. You may find it at "Xampp/php/". Now find:<br />
+	Now we have to edit a couple of things in a file called php.ini. You may find it at "Xampp/php/" on Windows and at "lampp/etc/" on Linux. Now find:<br />
 	<ul><li>"max_execution_time" and set its value to 90000. If there are semicolons (";") before "max_execution_time", remove them. The same for "max_input_time" and also set "memory_limit" to "5000M".</li>
 	<li>"output_buffering" and set it to On or any integer number if it is off. If there are semicolons (";") before "output_buffering", remove them.</li></ul>
-	To enable Xampp just open the Xampp Control Panel and click "Start" on Apache service. Apache must be running to use the scripts, and it stops every time you shutdown your computer.
+	To enable Xampp just open the Xampp Control Panel and click "Start" on Apache service. Apache must be running to use the scripts, and it stops every time you shutdown your computer.<br />
+	<strong>IMPORTANT:</strong> If you're running the script on LINUX, you have to set the permissions for every single folder to allow the script to read, write, create and delete files and folders.
 	</td></tr>
 	<tr><td><strong>Install Pear, OLE and Excel packages</strong></td></tr>
 	<tr><td>Excel exporter needs the following packages to be installed. You may find detailed info to install them here:<br />
 	<ul><li><a href="https://pear.php.net/package/PEAR">Link to Pear package page</a>.</li>
 	<li><a href="https://pear.php.net/package/OLE/">Link to OLE package page</a>.</li>
 	<li><a href="https://pear.php.net/package/Spreadsheet_Excel_Writer">Link to Excel package page</a>.</li></ul>
+	<strong>IMPORTANT:</strong> If you're running the script on LINUX, you must install pear using "" and set php_dir to the right path (<a href="https://github.com/Chicknstwe/Scraping/issues/2">click here to see how</a>) from BEFORE installing OLE and Excel Writer packages. 
 	</td></tr>
 	<tr><td><strong>Twitter dev tokens</strong></td></tr>
 	<tr><td>Tweets collector require some tokens povided by Twitter. To get yours, you must sing up at <a href="https://apps.twitter.com/">apps.twitter.com</a> and "Create a new app". You may use the following data to fill in some of the fields:<br />
@@ -59,8 +61,8 @@
 	<li>Website: https://github.com/Chicknstwe/Scraping.</li></ul>
 	After that, just go to the "Keys and Access Tokens" section to get your own tokens and copy&paste them into their respective fields in "Settings" section of this application.<br />	
 	</td></tr>
-	<tr><td><strong>Install curl cert</strong></td></tr>
-	<tr><td>Tweets collector uses curl so you have to download <a href="https://curl.haxx.se/docs/caextract.html">this cretificate</a> and place it somewhere in Xmapp's folder, for example at "Xampp\php\extras\openssl\".<br />
+	<tr><td><strong>Install curl cert (only Windows)</strong></td></tr>
+	<tr><td>This is ONLY for windows users, and it is recommended to give the script a try before doing this to see if the right certificate is already installed. Tweets collector uses curl so you have to download <a href="https://curl.haxx.se/docs/caextract.html">this cretificate</a> and place it somewhere in Xampp's folder, for example at "Xampp\php\extras\openssl\".<br />
 	Now go to "php.ini", the same file we edited previously. Find "curl.cainfo" and "openssl.cafile" and set them to the ABSOLUTE PATH of the "cacert.pem" certificate, wherever you placed it.</td></tr>
 	</table>
 	<br><br>
