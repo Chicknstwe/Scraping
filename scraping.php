@@ -93,9 +93,21 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   extract($_POST);
   $n_exec = $_REQUEST["exec_n_range"];
-  $selected_keywords = $_REQUEST["selected_keywords"];
+  if(isset($_REQUEST["selected_keywords"])) {
+		$selected_keywords = $_REQUEST["selected_keywords"];
+  } else {
+	  $selected_keywords = array();
+  }
+  if(isset($_REQUEST['selected_webs'])) {
+		$sel_websites = $_REQUEST['selected_webs'];
+  } else {
+	  $sel_websites = array();
+  }
   
-if (isConnected() && sizeof($selected_keywords) > 0) {	
+  
+  
+  
+if (isConnected() && sizeof($selected_keywords) > 0 && sizeof($sel_websites) > 0) {	
 	$media_ext = array("jpeg", ".jpg", ".png");
 	$compo_url = array("/", "?", "&", "#");
 	$docs_ext = array(".pdf", ".doc", "docx", ".xls", ".odt", ".ods", ".rtf", ".dot", "dotx", ".txt", ".xml", "docm", "dotm", ".dic", ".rar", ".zip", "r.gz", ".tar", ".bz2");
@@ -121,7 +133,6 @@ if (isConnected() && sizeof($selected_keywords) > 0) {
 	$save_img_test=0;
 	$save_doc_test=0;
 	$ejecuciones=0;
-	$sel_websites = $_REQUEST['selected_webs'];
 	
 	$web_progress->setSteps(sizeof($sel_websites) * $n_exec);
 	$web_progress->defineBar('#000000', '#000000');
@@ -322,7 +333,7 @@ $web_progress->clearTemp();
 	}
 } else {
 ?>
-	<script language="javascript">alert("You are not connected to the onternet or you have not chosen any words.");</script>
+	<script language="javascript">alert("You are not connected to the onternet or you have not chosen any web or word.");</script>
 <?php
 	} 
 }
