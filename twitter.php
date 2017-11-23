@@ -36,7 +36,7 @@
    </ul>
 	</nav>
 	<br><br><br><table class="table-fill"><form action="<?php echo $_SERVER['REQUEST_URI'] ?>" method="post" enctype="multipart/form-data">
-	<tr><th>Execution parameters</th></tr>
+	<tr><th>Tweets collector</th></tr>
 	<tr><td>Choose the account
 	<select name="twitter_user_select" size="1">
 	
