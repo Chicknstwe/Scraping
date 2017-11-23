@@ -41,6 +41,7 @@
 <?php
 	
 	$root="matches";
+	if (!file_exists($root)) mkdir($root, 0777, true);
 	$open_root=opendir($root);
 	while ($categoria = readdir($open_root)) {
 		if($categoria!="." AND $categoria!="..") {
@@ -134,7 +135,7 @@
 <?php
 				foreach($content as $tweet_id => $tweet) {
 ?>
-					<tr><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td><?php echo $tweet[1]; ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td> <a href="https://twitter.com/<?php echo $account . '/status/' . $tweet_id; ?>">Enlace</a></td><td>
+					<tr><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td><?php echo $tweet[1]; ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td> <a href="https://twitter.com/<?php echo $account . '/status/' . $tweet_id; ?>">Link</a></td><td>
 <?php
 					$c = 1;
 					foreach($tweet[10] as $media_url) {
