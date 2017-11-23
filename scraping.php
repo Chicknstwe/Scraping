@@ -129,6 +129,7 @@ if (isConnected() && sizeof($selected_keywords) > 0 && sizeof($sel_websites) > 0
 	$i=0;
 	$q=0;
 	$path = "matches";
+	if (!file_exists($path)) mkdir($path, 0777, true);
 	$key_matches=0;
 	$save_img_test=0;
 	$save_doc_test=0;
