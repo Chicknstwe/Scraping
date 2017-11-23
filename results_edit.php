@@ -94,6 +94,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	}
 	if($results == 'webs') {	
 		$root="matches";
+		if (!file_exists($root)) mkdir($root, 0777, true);
 		$open_root=opendir($root);
 		while ($categoria = readdir($open_root)) {
 			if($categoria!="." AND $categoria!="..") {
