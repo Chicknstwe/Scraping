@@ -50,7 +50,7 @@
 
    </select></td></tr>
    
-	<tr><td>Number of tweets <input type="range" name="exec_n_range" min="15" max="200" value="15" step="1" id="n_exec" onchange="range_exec.value=value"><output align="center" id="range_exec">15</output></td></tr>
+	<tr><td>Number of tweets <input type="range" name="exec_n_range" min="200" max="4000" value="200" step="200" id="n_exec" onchange="range_exec.value=value"><output align="center" id="range_exec">200</output></td></tr>
 	<tr><td><input type="checkbox" id="checkall" onchange="checkAllKeywords()"> <strong>Keywords to search</strong><br />
 <?php
 	$wordInLine = 1;
@@ -105,34 +105,35 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if (gettype($rawdata) != "string") {
 		
 			$array_output = array();
+			$twitter_reg_temp = array();
+			$tweets_temp = array();
+			
+			if(sizeof($rawdata) > 0) {
+				save_avatar($rawdata[array_keys($rawdata)[0]][6]);
+			}
 			
 			if((isset($_POST['only_new']) && $_POST['only_new'] == 'Yes') && (isset($_POST['only_keyword']) && $_POST['only_keyword'] == 'Yes')) {
 				foreach($rawdata as $tweet) {
 					if((!array_key_exists($tweet[2], $twitter_reg) || !in_array($tweet[4], $twitter_reg[$tweet[2]])) && hasKeyword($tweet[3], $selected_keywords)) {
-						$tweets[$tweet[2]][$tweet[4]] = $tweet;
-						if(!in_array($tweet[2], $twitter_reg)) {
-							$twitter_reg[$tweet[2]] = array();
+						$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
+						if(!in_array($tweet[2], $twitter_reg_temp)) {
+							$twitter_reg_temp[$tweet[2]] = array();
 						}
-						array_push($array_output, $tweet);
-						addTwitterReg($tweets, $twitter_reg);
-						save_avatar($tweet[6]);
+						array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
+						
 						$keyword_matches++;
 						$new_tweets_found++;
 					}
 					$tweets_searched++;
 				}
 			} elseif(isset($_POST['only_new']) && $_POST['only_new'] == 'Yes') {
-				echo "<br />";
-				echo "<br />";
 				foreach($rawdata as $tweet) {
 					if(!array_key_exists($tweet[2], $twitter_reg) || !in_array($tweet[4], $twitter_reg[$tweet[2]])) {
-						$tweets[$tweet[2]][$tweet[4]] = $tweet;
-						if(!array_key_exists($tweet[2], $twitter_reg)) {
-							$twitter_reg[$tweet[2]] = array();
+						$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
+						if(!array_key_exists($tweet[2], $twitter_reg_temp)) {
+							$twitter_reg_temp[$tweet[2]] = array();
 						}
-						array_push($array_output, $tweet);
-						addTwitterReg($tweets, $twitter_reg);
-						save_avatar($tweet[6]);
+						array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
 						$new_tweets_found++;
 					}
 					$tweets_searched++;
@@ -140,32 +141,29 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			} elseif(isset($_POST['only_keyword']) && $_POST['only_keyword'] == 'Yes') {
 				foreach($rawdata as $tweet) {
 					if(hasKeyword($tweet[3], $selected_keywords)) {
-						$tweets[$tweet[2]][$tweet[4]] = $tweet;
-						array_push($array_output, $tweet);
-						addTwitterReg($tweets, $twitter_reg);
-						save_avatar($tweet[6]);
+						$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
+						if(!array_key_exists($tweet[2], $twitter_reg_temp)) {
+							$twitter_reg_temp[$tweet[2]] = array();
+						}
+						array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
 						$keyword_matches++;
 					}
 					$tweets_searched++;
 				}
 			} else {
 				foreach($rawdata as $tweet) {
-					$tweets[$tweet[2]][$tweet[4]] = $tweet;
-					array_push($array_output, $tweet);
-					addTwitterReg($tweets, $twitter_reg);
-					save_avatar($tweet[6]);
+					$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
+					if(!array_key_exists($tweet[2], $twitter_reg_temp)) {
+						$twitter_reg_temp[$tweet[2]] = array();
+					}
+					array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
 					$tweets_searched++;
 				}
 				
 			}	
 			
-			foreach($array_output as $tweet) {
-				if(!array_key_exists($tweet[2], $twitter_reg)) {
-					$twitter_reg[$tweet[2]] = array();
-				}
-				array_push($twitter_reg[$tweet[2]], $tweet[4]);
-			}
-			
+			$tweets = array_merge_recursive($tweets, $tweets_temp);
+			$twitter_reg = array_merge_recursive($twitter_reg, $twitter_reg_temp);
 			addTwitterReg($tweets, $twitter_reg);
 			
 			if (isset($_POST['show_info']) && $_POST['show_info'] == 'Yes') {
