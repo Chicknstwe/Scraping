@@ -13,14 +13,27 @@ class Twitter{
             'consumer_key' => $consumer_key,
             'consumer_secret' => $consumer_secret
         );
+		
+		$json = '{}';
 
-        $url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
-        $getfield = '?screen_name=' . $user . '&count=' . $number;        
+        $url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';       
         $requestMethod = 'GET';
         $twitter = new TwitterAPIExchange($settings);
-        $json =  $twitter->setGetfield($getfield)
-                     ->buildOauth($url, $requestMethod)
-                     ->performRequest();
+		
+		$page = 1;
+		while($number > 0) {
+			$getfield = '?screen_name=' . $user . '&count=200&page=' . $page; 
+			$temp_json =  $twitter->setGetfield($getfield)
+						 ->buildOauth($url, $requestMethod)
+						 ->performRequest();
+			$page++;
+			$number -= 200;
+			
+			
+			$json = json_encode(array_merge(json_decode($json, true),json_decode($temp_json, true)));
+			
+		}
+		
         return $json;
 
     }
@@ -57,7 +70,7 @@ class Twitter{
 
 
     function getArrayTweets($jsonraw){
-        $rawdata = "";
+        $rawdata = array();
         $json = json_decode($jsonraw);
         $num_items = count($json);
 		
@@ -89,6 +102,15 @@ class Twitter{
 						array_push($entities, $item->url);
 					}
 				}
+				
+				$hashtags = [];
+				if(property_exists( $user->entities, 'hashtags' )) {
+					foreach($user->entities->hashtags as $item)
+					{
+						$hash = '#' . $item->text;
+						array_push($hashtags, $hash);
+					}
+				}
 
 				$imagen = '<a href="https://twitter.com/'.$screen_name.'" target=_blank><img src="app/avatar/'.valid_chars(basename(urldecode($url_imagen))).'"></img></a>';
 				$url = "<a href='https://twitter.com/".$screen_name."' target=_blank>@".$screen_name."</a>";
@@ -105,11 +127,12 @@ class Twitter{
 				$rawdata[$tid][9]=$retweets;
 				$rawdata[$tid][10]=$entities;
 				$rawdata[$tid][11]= 'app/avatar/' . valid_chars(basename(urldecode($url_imagen)));
+				$rawdata[$tid][12]=$hashtags;
 				
 			}
 			return $rawdata;
 		} else { 
-			return "El usuario no existe.";
+			return "The user does not exist or you have entered wrong tokens.";
 		}
     }
 }
