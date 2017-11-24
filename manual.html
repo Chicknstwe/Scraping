@@ -44,7 +44,9 @@
 	Open it and extract here every file from Scraping tool.rar (or Scraping tool.tar.gz).<br />
 	Now we have to edit a couple of things in a file called php.ini. You may find it at "Xampp/php/" on Windows and at "lampp/etc/" on Linux. Now find:<br />
 	<ul><li>"max_execution_time" and set its value to 90000. If there are semicolons (";") before "max_execution_time", remove them. The same for "max_input_time" and also set "memory_limit" to "5000M".</li>
-	<li>"output_buffering" and set it to On or any integer number if it is off. If there are semicolons (";") before "output_buffering", remove them.</li></ul>
+	<li>"output_buffering" and set it to On or any integer number if it is off. If there are semicolons (";") before "output_buffering", remove them.</li>
+	<li>"max_input_vars" and set it to an integer number bigger than 4000. Do the same with semicolons.</li>
+	<li>"memory_limit" and set it to 512M. Do the same with semicolons.</li></ul>
 	To enable Xampp just open the Xampp Control Panel and click "Start" on Apache service. Apache must be running to use the scripts, and it stops every time you shutdown your computer.<br />
 	<strong>IMPORTANT:</strong> If you're running the script on LINUX, you have to set the permissions for every single folder to allow the script to read, write, create and delete files and folders.
 	</td></tr>
