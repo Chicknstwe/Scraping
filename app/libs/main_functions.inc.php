@@ -122,7 +122,8 @@ function keywords_matches($path, $keywords) {
 }
 
 function static_keywords_matches($path) {
-	include 'resources.inc.php';
+	$json_resources = json_decode(file_get_contents(__DIR__ . '/../data/resources.json'), TRUE);
+	$keywords = $json_resources['keywords'];
 	$input = file_get_contents_curl($path);
 	$matches = "";
 	$found = false;
@@ -165,7 +166,8 @@ function tweet_keywords_matches($input, $keywords) {
 }
 
 function static_tweet_keywords_matches($input) {
-	include 'resources.inc.php';
+	$json_resources = json_decode(file_get_contents(__DIR__ . '/../data/resources.json'), TRUE);
+	$keywords = $json_resources['keywords'];
 	$matches = "";
 	$found = false;
 	$i=0;
@@ -237,28 +239,8 @@ function stringToWriteTDC($input, $type) {
 	return $output;
 }
 
-function addScrapingReg($added, $img_added, $docs_added) {
-	$resources = fopen("app/libs/scraping_reg.inc.php", "w") or die("¡Error opening scraping_reg.inc.php!");
-	fwrite($resources, "<?php\n");
-	fwrite($resources, arrayToStringC($added, 3));
-	fwrite($resources, arrayToStringC($img_added, 4));
-	fwrite($resources, arrayToStringC($docs_added, 5));
-	fwrite($resources, "?>");
-	fclose($resources);
-}
-
-function addTwitterReg($tweets, $twitter_reg) {
-	$resources = fopen("app/libs/twitter_reg.inc.php", "w") or die("¡Error opening twitter_reg.inc.php!");
-	fwrite($resources, "<?php\n");
-	fwrite($resources, arrayToStringC($tweets, 6));
-	fwrite($resources, arrayToStringC($twitter_reg, 7));
-	fwrite($resources, "?>");
-	fclose($resources);
-}
-
 function isConnected()
 {
-    // use 80 for http or 443 for https protocol
     $connected = @fsockopen("www.google.com", 80);
     if ($connected){
         fclose($connected);
@@ -269,29 +251,16 @@ function isConnected()
 
 function scrapRegReset() {
 	
-	$added = array();
-	$img_added = array();
-	$docs_added = array();
-	$file = fopen("app/libs/scraping_reg.inc.php", "w") or die("¡Error opening scraping_reg.inc.php!");
-	fwrite($file, "<?php\n");
-	fwrite($file, arrayToStringC($added, 3));
-	fwrite($file, arrayToStringC($img_added, 4));
-	fwrite($file, arrayToStringC($docs_added, 5));
-	fwrite($file, " ?>");
-	fclose($file);
-	
+	foreach (glob('app/data/web/*.json') as $file_path) {
+		unlink($file_path);
+	}	
 }
 
 function twitterRegReset() {
 	
-	$tweets = array();
-	$twitter_reg = array();
-	$resources = fopen("app/libs/twitter_reg.inc.php", "w") or die("¡Error opening twitter_reg.inc.php!");
-	fwrite($resources, "<?php\n");
-	fwrite($resources, arrayToStringC($tweets, 6));
-	fwrite($resources, arrayToStringC($twitter_reg, 7));
-	fwrite($resources, "?>");
-	fclose($resources);
+	foreach (glob('app/data/twitter/*.json') as $file_path) {
+		unlink($file_path);
+	}	
 	
 }
 
@@ -301,31 +270,12 @@ function resRegReset() {
 	$names = array();
 	$keywords = array();
 	$twitter_accs = array();
-	$resources = fopen("app/libs/resources.inc.php", "w") or die("¡Error opening resources.inc.php!");
-	fwrite($resources, "<?php\n");
-	fwrite($resources, arrayToStringC($websites, 0));
-	fwrite($resources, arrayToStringC($names, 1));
-	fwrite($resources, arrayToStringC($keywords, 2));
-	fwrite($resources, arrayToStringC($twitter_accs, 8));
-	fwrite($resources, "?>");
+	$resources = fopen("app/data/resources.json", "w") or die("¡Error opening resources.json!");
+	fwrite($resources, '{"websites":[],"names":{},"keywords":[],"twitter_accs":[]}');
 	fclose($resources);
 	
 }
 
-function fixReg() {
-	
-	$added = array();
-	$img_added = array();
-	$docs_added = array();
-	$file = fopen("app/libs/scraping_reg.inc.php", "w") or die("¡Error opening scraping_reg.inc.php!");
-	fwrite($file, "<?php\n");
-	fwrite($file, arrayToStringC($added, 3));
-	fwrite($file, arrayToStringC($img_added, 4));
-	fwrite($file, arrayToStringC($docs_added, 5));
-	fwrite($file, " ?>");
-	fclose($file);
-	
-}
 
 function file_get_contents_curl($url) {
   if (strpos($url,'http://') !== FALSE) {

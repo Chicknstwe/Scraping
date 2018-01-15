@@ -125,35 +125,36 @@
 	}
 	
 	closedir($open_root);
-	if (sizeof($tweets) > 0) {
-		foreach($tweets as $account => $content) {
-			if (sizeof($content) > 0) {
+	
+	foreach(glob('app/data/twitter/*.json') as $json_file) {
+		$account = basename($json_file, '.json');
+		$content = json_decode(file_get_contents($json_file), TRUE);
+		if (sizeof($content) > 0) {
 ?>
-				<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-				<table class="sortable" style="display: none;" id="<?php echo 'tweets' . $account;?>">
-				<tr><th class="tweet-cell">Date</th><th>Image</th><th>Tweet</th><th>Keywords</th><th>Link</th><th>Entities</th><th>Favs</th><th>RT</th></tr>
+			<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
+			<table class="sortable" style="display: none;" id="<?php echo 'tweets' . $account;?>">
+			<tr><th class="tweet-cell">Date</th><th>Image</th><th>Tweet</th><th>Keywords</th><th>Link</th><th>Entities</th><th>Favs</th><th>RT</th></tr>
 <?php
-				foreach($content as $tweet_id => $tweet) {
+			foreach($content as $tweet_id => $tweet) {
 ?>
-					<tr><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td><?php echo $tweet[1]; ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td> <a href="https://twitter.com/<?php echo $account . '/status/' . $tweet_id; ?>">Link</a></td><td>
+				<tr><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td><?php echo $tweet[1]; ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td> <a href="https://twitter.com/<?php echo $account . '/status/' . $tweet_id; ?>">Link</a></td><td>
 <?php
-					$c = 1;
-					foreach($tweet[10] as $media_url) {
+				$c = 1;
+				foreach($tweet[10] as $media_url) {
 ?>
-						<a href="<?php echo $media_url; ?>">Entity-<?php echo $c; ?></a>
+					<a href="<?php echo $media_url; ?>">Entity-<?php echo $c; ?></a>
 <?php					
-						$c++;
-					}
-?>			
-					</td><td><?php echo $tweet[8]; ?></td>
-					<td><?php echo $tweet[9]; ?></td></tr>
-<?php
+					$c++;
 				}
-?>
-				</table>
+?>			
+				</td><td><?php echo $tweet[8]; ?></td>
+				<td><?php echo $tweet[9]; ?></td></tr>
 <?php
-				
 			}
+?>
+			</table>
+<?php
+			
 		}
 	}
 ?>

@@ -81,7 +81,7 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 	</td></tr>
 	<tr><td><input type="checkbox" name="save_imgs" value="Yes" > Save images<br>
     <input type="checkbox" name="save_docs" value="Yes"> Save documents<br>
-	<input type="checkbox" name="show_info" value="Yes"> Show performance report</td></tr>
+	<input type="checkbox" name="show_info" value="Yes" disabled> Show performance report (disabled)</td></tr>
     <tr><td><input type="submit" name="apisubmit" id="apisubmit" class="amp" value="Run"/></td></tr>
 </form>
 </table>
@@ -90,8 +90,14 @@ header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 
 <?php
 
+$web_progress->placeholder();
+$web_progress->setLogPath(''); 
+
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   extract($_POST);
+  echo $_POST["show_info"];
+
   $n_exec = $_REQUEST["exec_n_range"];
   if(isset($_REQUEST["selected_keywords"])) {
 		$selected_keywords = $_REQUEST["selected_keywords"];
@@ -104,9 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	  $sel_websites = array();
   }
   
-  
-  
-  
 if (isConnected() && sizeof($selected_keywords) > 0 && sizeof($sel_websites) > 0) {	
 	$media_ext = array("jpeg", ".jpg", ".png");
 	$compo_url = array("/", "?", "&", "#");
@@ -115,9 +118,6 @@ if (isConnected() && sizeof($selected_keywords) > 0 && sizeof($sel_websites) > 0
 ?>
 <script language="javascript">alert("The script has been executed.");</script>
 <?php
-
-	$web_progress->placeholder();
-	$web_progress->setLogPath(''); 
 
 	$array_output = array();
 	$img_num=0;
@@ -138,63 +138,92 @@ if (isConnected() && sizeof($selected_keywords) > 0 && sizeof($sel_websites) > 0
 	$web_progress->setSteps(sizeof($sel_websites) * $n_exec);
 	$web_progress->defineBar('#000000', '#000000');
 		
-while ($q < sizeof($sel_websites)) {
-	 $on_websites = array();
-	 $web_name = $names[$sel_websites[$q]];
-	 array_push($on_websites, $sel_websites[$q]);
-	 $k=0;
-	 while ($k < sizeof($on_websites) && $k < $n_exec) {
-			
-		$base = $sel_websites[$q];
-		$web = $on_websites[$k];
-		if(substr($web, 0, 2) == '//') {
-			$web = 'http:' . $web;
-			$comp_count++;
-		}
-		$output = file_get_contents_curl($web);
-		$var = pc_link_extractor($output);
-		$media_output = array();
-		$docs_output = array();
-		$url_count++;
-		
-
-		
-		$i=0;
-		while ($i < sizeof($var)) {
-			if(substr($var[$i][0], 0, 2) == '//') {
-				$var[$i][0] = 'http:' . $var[$i][0];
-				$comp_count++;
-			} elseif (in_array(substr($var[$i][0], 0, 1), $compo_url)) {
-				$var[$i][0] = $base  . "" . $var[$i][0];
+	while ($q < sizeof($sel_websites)) {
+		 $on_websites = array();
+		 $web_name = $names[$sel_websites[$q]];
+		 if(!file_exists('app/data/web/' . $web_name . '.json')) {
+			 $new_json = fopen('app/data/web/' . $web_name . '.json', 'w') or die('¡Error opening ' . $web_name . '.json file!');
+			 fwrite($new_json, '{"added":[],"img_added":[],"docs_added":[]}');
+			 fclose($new_json);
+		 }
+		 $scrap_register = json_decode(file_get_contents('app/data/web/' . $web_name . '.json'), TRUE);
+		 $added = $scrap_register['added'];
+		 $img_added = $scrap_register['img_added'];
+		 $docs_added = $scrap_register['docs_added'];
+		 
+		 array_push($on_websites, $sel_websites[$q]);
+		 $k=0;
+		 while ($k < sizeof($on_websites) && $k < $n_exec) {
+				
+			$base = $sel_websites[$q];
+			$web = $on_websites[$k];
+			if(substr($web, 0, 2) == '//') {
+				$web = 'http:' . $web;
 				$comp_count++;
 			}
-			if (substr($var[$i][0], 0, strlen($base)) == $base) {
-				$var[$i][0] = trim($var[$i][0]);
-				$var[$i][1] = trim($var[$i][1]);
-				$var[$i][1] = tag_img_extractor($var[$i][1]);
-				
-				if (in_array(substr($var[$i][1], -4, 4), $media_ext)) {
-					if(substr($var[$i][1], 0, 2) == '//') {
-						$var[$i][1] = 'http:' . $var[$i][1];
-						$comp_count++;
+			$output = file_get_contents_curl($web);
+			$var = pc_link_extractor($output);
+			$media_output = array();
+			$docs_output = array();
+			$url_count++;
+			
+			$i=0;
+			while ($i < sizeof($var)) {
+				if(substr($var[$i][0], 0, 2) == '//') {
+					$var[$i][0] = 'http:' . $var[$i][0];
+					$comp_count++;
+				} elseif (in_array(substr($var[$i][0], 0, 1), $compo_url)) {
+					$var[$i][0] = $base  . "" . $var[$i][0];
+					$comp_count++;
+				}
+				if (substr($var[$i][0], 0, strlen($base)) == $base) {
+					$var[$i][0] = trim($var[$i][0]);
+					$var[$i][1] = trim($var[$i][1]);
+					$var[$i][1] = tag_img_extractor($var[$i][1]);
+					
+					if (in_array(substr($var[$i][1], -4, 4), $media_ext)) {
+						if(substr($var[$i][1], 0, 2) == '//') {
+							$var[$i][1] = 'http:' . $var[$i][1];
+							$comp_count++;
+						}
+						if (!in_array($var[$i][1], $img_added)) {
+							array_push($media_output, $var[$i][1]);
+							array_push($img_added, $var[$i][1]);
+						}
+						$img_num++;
+					} 
+					
+					if (in_array(substr($var[$i][0], -4, 4), $media_ext)) {	
+						if(substr($var[$i][0], 0, 2) == '//') {
+							$var[$i][0] = 'http:' . $var[$i][0];
+							$comp_count++;
+						}
+						if (!in_array($var[$i][0], $img_added)) {
+							array_push($media_output, $var[$i][0]);
+							array_push($img_added, $var[$i][0]);
+						}
+						$img_num++;
+					} elseif (in_array(substr($var[$i][0], -4, 4), $docs_ext)) {
+						if(substr($var[$i][0], 0, 2) == '//') {
+							$var[$i][0] = 'http:' . $var[$i][0];
+							$comp_count++;
+						}
+						if (!in_array($var[$i][0], $docs_added)) {
+							array_push($docs_output, $var[$i][0]);
+							array_push($docs_added, $var[$i][0]);
+						}
+						$docs_count++;
+					} elseif (!in_array($var[$i][0], $on_websites)) {
+						array_push($on_websites, $var[$i][0]);
+						if (!in_array($var[$i][0], $added)) {
+							array_push($added, $var[$i][0]);
+							$added_count++;
+							if (!in_array($var[$i][0], $websites)) {
+								array_push($array_output, $var[$i][0]);
+								$new_url_count++;
+							}
+						}
 					}
-					if (!in_array($var[$i][1], $img_added)) {
-						array_push($media_output, $var[$i][1]);
-						array_push($img_added, $var[$i][1]);
-					}
-					$img_num++;
-				} 
-				
-				if (in_array(substr($var[$i][0], -4, 4), $media_ext)) {	
-					if(substr($var[$i][0], 0, 2) == '//') {
-						$var[$i][0] = 'http:' . $var[$i][0];
-						$comp_count++;
-					}
-					if (!in_array($var[$i][0], $img_added)) {
-						array_push($media_output, $var[$i][0]);
-						array_push($img_added, $var[$i][0]);
-					}
-					$img_num++;
 				} elseif (in_array(substr($var[$i][0], -4, 4), $docs_ext)) {
 					if(substr($var[$i][0], 0, 2) == '//') {
 						$var[$i][0] = 'http:' . $var[$i][0];
@@ -205,119 +234,100 @@ while ($q < sizeof($sel_websites)) {
 						array_push($docs_added, $var[$i][0]);
 					}
 					$docs_count++;
-				} elseif (!in_array($var[$i][0], $on_websites)) {
-					array_push($on_websites, $var[$i][0]);
-					if (!in_array($var[$i][0], $added)) {
-						array_push($added, $var[$i][0]);
-						$added_count++;
-						if (!in_array($var[$i][0], $websites)) {
-							array_push($array_output, $var[$i][0]);
-							$new_url_count++;
-						}
+				} elseif (in_array(substr($var[$i][0], -4, 4), $media_ext)) {
+					if(substr($var[$i][0], 0, 2) == '//') {
+						$var[$i][0] = 'http:' . $var[$i][0];
+						$comp_count++;
+					}			
+					if (!in_array($var[$i][0], $img_added)) {
+						array_push($media_output, $var[$i][0]);
+						array_push($img_added, $var[$i][0]);
 					}
-				}
-			} elseif (in_array(substr($var[$i][0], -4, 4), $docs_ext)) {
-				if(substr($var[$i][0], 0, 2) == '//') {
-					$var[$i][0] = 'http:' . $var[$i][0];
-					$comp_count++;
-				}
-				if (!in_array($var[$i][0], $docs_added)) {
-					array_push($docs_output, $var[$i][0]);
-					array_push($docs_added, $var[$i][0]);
-				}
-				$docs_count++;
-			} elseif (in_array(substr($var[$i][0], -4, 4), $media_ext)) {
-				if(substr($var[$i][0], 0, 2) == '//') {
-					$var[$i][0] = 'http:' . $var[$i][0];
-					$comp_count++;
-				}			
-				if (!in_array($var[$i][0], $img_added)) {
-					array_push($media_output, $var[$i][0]);
-					array_push($img_added, $var[$i][0]);
-				}
-				$img_num++;
-				}
+					$img_num++;
+					}
+					
+				$scrap_register = fopen('app/data/web/' . $web_name . '.json', 'w') or die('¡Error opening ' . $web_name . '.json file!');
+				fwrite($scrap_register, json_encode(array('added' => $added, 'img_added' => $img_added, 'docs_added' => $docs_added)));
+				fclose($scrap_register);
 				
-			addScrapingReg($added, $img_added, $docs_added);
-			$i++;
-		}
+				$i++;
+			}
 
-		$i=0;
-		while ($i < sizeof($selected_keywords)) {
-			if (strpos($output, $selected_keywords[$i]) !== false) {
-				$path_base = $path . "/" . modSpace($web_name);
-				if (!file_exists($path)) mkdir($path, 0777, true);
-				if (!file_exists($path_base)) mkdir($path_base, 0777, true);
-				$scrapped = fopen($path . '/' . modSpace($web_name) . '/' . valid_chars($on_websites[$k]) . '.html', "w") or die("¡Error opening " . $path_base . "/" . basename(modSpace($on_websites[$k])) . ".html!");
-				fwrite($scrapped, $output);
-				fclose($scrapped);
-				$key_matches++;
-				if (isset($_POST['save_imgs']) && $_POST['save_imgs'] == 'Yes') {
-					$imgs = array_tag_img_extractor($output);
-					$z=0;
-					
-					
-					while ($z < sizeof($imgs)) {
-						if (in_array(substr($imgs[$z], -4, 4), $media_ext)) {
-							array_push($media_output, $imgs[$z]);
+			$i=0;
+			while ($i < sizeof($selected_keywords)) {
+				if (strpos($output, $selected_keywords[$i]) !== false) {
+					$path_base = $path . "/" . modSpace($web_name);
+					if (!file_exists($path)) mkdir($path, 0777, true);
+					if (!file_exists($path_base)) mkdir($path_base, 0777, true);
+					$scrapped = fopen($path . '/' . modSpace($web_name) . '/' . valid_chars($on_websites[$k]) . '.html', "w") or die("¡Error opening " . $path_base . "/" . basename(modSpace($on_websites[$k])) . ".html!");
+					fwrite($scrapped, $output);
+					fclose($scrapped);
+					$key_matches++;
+					if (isset($_POST['save_imgs']) && $_POST['save_imgs'] == 'Yes') {
+						$imgs = array_tag_img_extractor($output);
+						$z=0;
+						
+						
+						while ($z < sizeof($imgs)) {
+							if (in_array(substr($imgs[$z], -4, 4), $media_ext)) {
+								array_push($media_output, $imgs[$z]);
+							}
+							$z++;
 						}
-						$z++;
-					}
-					$z=0;
-					while ($z < sizeof($media_output)) {
-						if(substr($media_output[$z], 0, 2) == '//') {
-							$media_output[$z] = 'http:' . $media_output[$z];
-							$comp_count++;
+						$z=0;
+						while ($z < sizeof($media_output)) {
+							if(substr($media_output[$z], 0, 2) == '//') {
+								$media_output[$z] = 'http:' . $media_output[$z];
+								$comp_count++;
+							}
+							$img_file = file_get_contents_curl($media_output[$z]);
+							$media_path = $path_base . "/imgs";
+							if (!file_exists($path)) mkdir($path, 0777, true);
+							if (!file_exists($path_base)) mkdir($path_base, 0777, true);
+							if (!file_exists($media_path)) mkdir($media_path, 0777, true);
+							$get_img = fopen($media_path . "/" . valid_chars(basename(modSpace($media_output[$z]))), "w") or die("¡Error opening " . $media_path . "/" . basename(modSpace($media_output[$z])));
+							fwrite($get_img, $img_file);
+							fclose($get_img);
+							$save_img_test++;
+							$z++;
 						}
-						$img_file = file_get_contents_curl($media_output[$z]);
-						$media_path = $path_base . "/imgs";
-						if (!file_exists($path)) mkdir($path, 0777, true);
-						if (!file_exists($path_base)) mkdir($path_base, 0777, true);
-						if (!file_exists($media_path)) mkdir($media_path, 0777, true);
-						$get_img = fopen($media_path . "/" . valid_chars(basename(modSpace($media_output[$z]))), "w") or die("¡Error opening " . $media_path . "/" . basename(modSpace($media_output[$z])));
-						fwrite($get_img, $img_file);
-						fclose($get_img);
-						$save_img_test++;
-						$z++;
 					}
-				}
-				if (isset($_POST['save_docs']) && $_POST['save_docs'] == 'Yes') {
-					$z=0;
-					while ($z < sizeof($docs_output)) {
-						if(substr($docs_output[$z], 0, 2) == '//') {
-							$docs_output[$z] = 'http:' . $docs_output[$z];
-							$comp_count++;
+					if (isset($_POST['save_docs']) && $_POST['save_docs'] == 'Yes') {
+						$z=0;
+						while ($z < sizeof($docs_output)) {
+							if(substr($docs_output[$z], 0, 2) == '//') {
+								$docs_output[$z] = 'http:' . $docs_output[$z];
+								$comp_count++;
+							}
+							$doc_file = file_get_contents_curl($docs_output[$z]);
+							$docs_path = $path_base . "/docs";
+							if (!file_exists($path)) mkdir($path, 0777, true);
+							if (!file_exists($path_base)) mkdir($path_base, 0777, true);
+							if (!file_exists($docs_path)) mkdir($docs_path, 0777, true);
+							$get_doc = fopen($docs_path . "/" . valid_chars(basename(modSpace($docs_output[$z]))), "w") or die("¡Error opening " . $docs_path . "/" . basename(modSpace($docs_output[$z])));
+							fwrite($get_doc, $doc_file);
+							fclose($get_doc);
+							$save_doc_test++;
+							$z++;
 						}
-						$doc_file = file_get_contents_curl($docs_output[$z]);
-						$docs_path = $path_base . "/docs";
-						if (!file_exists($path)) mkdir($path, 0777, true);
-						if (!file_exists($path_base)) mkdir($path_base, 0777, true);
-						if (!file_exists($docs_path)) mkdir($docs_path, 0777, true);
-						$get_doc = fopen($docs_path . "/" . valid_chars(basename(modSpace($docs_output[$z]))), "w") or die("¡Error opening " . $docs_path . "/" . basename(modSpace($docs_output[$z])));
-						fwrite($get_doc, $doc_file);
-						fclose($get_doc);
-						$save_doc_test++;
-						$z++;
-					}
-				}			
-				break;
-			} 
-			$i++;
+					}			
+					break;
+				} 
+				$i++;
+			}
+			$k++;
+			$bar_msg = 'Scraping ' . $web_name;
+			$web_progress->save($bar_msg);
+			$web_progress->delay(0.0);
+			$ejecuciones++;
 		}
-		$k++;
-		 $bar_msg = 'Scraping ' . $web_name;
-		 $web_progress->save($bar_msg);
-		$web_progress->delay(0.0);
-		$ejecuciones++;
+		$k=0;
+		$q++;
 	}
-	$k=0;
-	$q++;
-}
-$web_progress->clearTemp(); 
-?>
 
-<?php
-
+	$web_progress->clearTemp(); 
+	// TODO: The table may be always on document, but only visible if POST is requested using js. If visible, every single value is refreshed using js.
+	/*
 	if (isset($_POST['show_info']) && $_POST['show_info'] == 'Yes') {
 ?>
 		<br><br><br><table class="table-fill"><tr><th colspan=2>Performance report</th></tr>
@@ -331,7 +341,7 @@ $web_progress->clearTemp();
 		<tr><td>Script runs</td><td><?php echo $ejecuciones; ?></td></tr>
 		</table><br><br><br>
 <?php
-	}
+	} */
 } else {
 ?>
 	<script language="javascript">alert("You are not connected to the onternet or you have not chosen any web or word.");</script>

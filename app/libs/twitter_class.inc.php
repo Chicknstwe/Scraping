@@ -5,13 +5,13 @@ class Twitter{
     function getTweets($user, $number){
         ini_set('display_errors', 1);
         require_once('TwitterAPIExchange.php');
-		include 'twitter_auth.inc.php';
+		$twitter_auth = json_decode(file_get_contents(__DIR__ . '/../data/twitter_auth.json'), TRUE);
 
         $settings = array(
-            'oauth_access_token' => $oauth_access_token,
-            'oauth_access_token_secret' => $oauth_access_token_secret,
-            'consumer_key' => $consumer_key,
-            'consumer_secret' => $consumer_secret
+            'oauth_access_token' => $twitter_auth['oauth_access_token'],
+            'oauth_access_token_secret' => $twitter_auth['oauth_access_token_secret'],
+            'consumer_key' => $twitter_auth['consumer_key'],
+            'consumer_secret' => $twitter_auth['consumer_secret']
         );
 		
 		$json = '{}';
@@ -44,10 +44,10 @@ class Twitter{
 		include 'twitter_auth.inc.php';
 
         $settings = array(
-            'oauth_access_token' => $oauth_access_token,
-            'oauth_access_token_secret' => $oauth_access_token_secret,
-            'consumer_key' => $consumer_key,
-            'consumer_secret' => $consumer_secret
+            'oauth_access_token' => $twitter_auth['oauth_access_token'],
+            'oauth_access_token_secret' => $twitter_auth['oauth_access_token_secret'],
+            'consumer_key' => $twitter_auth['consumer_key'],
+            'consumer_secret' => $twitter_auth['consumer_secret']
         );
 		
 		$url = 'https://api.twitter.com/1.1/application/rate_limit_status.json';

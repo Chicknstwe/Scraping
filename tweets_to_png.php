@@ -46,10 +46,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$converted_tweets = 0;
 	if(sizeof($input) > 0) {
 		$account = explode('.', $input[0])[0];
+		$tweets_file = json_decode(file_get_contents('app/data/twitter/' . $account . '.json'), TRUE);
 	
 		foreach($input as $raw_tw) {
 			$tw = explode('.', $raw_tw);
-			convert_tweet_to_png($tweets[$tw[0]][$tw[1]]);
+			convert_tweet_to_png($tweets_file[$tw[1]]);
 			$converted_tweets++;
 		}
 ?>
@@ -67,30 +68,32 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 <br>
 <br>
 <?php	
-	if (sizeof($tweets) > 0) {
-		foreach($tweets as $account => $content) {
-			if (sizeof($content) > 0) {
+
+	foreach(glob('app/data/twitter/*.json') as $json_file) {
+		$account = basename($json_file, '.json');
+		$content = json_decode(file_get_contents($json_file), TRUE);
+		if (sizeof($content) > 0) {
 ?>
-				<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-				<table class="sortable"  style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="tweets_to_png.php" method="post" enctype="multipart/form-data">
-				<tr><th><input type="checkbox" id="checkall_convert_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('convert_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
+			<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
+			<table class="sortable"  style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="tweets_to_png.php" method="post" enctype="multipart/form-data">
+			<tr><th><input type="checkbox" id="checkall_convert_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('convert_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
 <?php
-				foreach($content as $tweet_id => $tweet) {
+			foreach($content as $tweet_id => $tweet) {
 ?>
-					<tr><td><input type="checkbox" name="convert_tweets_<?php echo utf8_encode($account);?>[]" value="<?php echo $account . '.' . $tweet[4]?>"></td><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td><?php echo $tweet[8]; ?></td><td><?php echo $tweet[9]; ?></td></tr>
+				<tr><td><input type="checkbox" name="convert_tweets_<?php echo utf8_encode($account);?>[]" value="<?php echo $account . '.' . $tweet[4]?>"></td><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td><?php echo $tweet[8]; ?></td><td><?php echo $tweet[9]; ?></td></tr>
 <?php
-				}
-				
-?>
-				</table>
-				<table class="sorttable-lit" style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
-				<tr><td class="button"><button type="submit" class="amp" name="button" value="<?php echo $account; ?>">Convert</button></td></tr>
-				</form></table>
-<?php
-				
 			}
+			
+?>
+			</table>
+			<table class="sorttable-lit" style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
+			<tr><td class="button"><button type="submit" class="amp" name="button" value="<?php echo $account; ?>">Convert</button></td></tr>
+			</form></table>
+<?php
+			
 		}
 	}
+	
 ?>
 <br>
 <br>

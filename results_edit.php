@@ -71,12 +71,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		if(isset($_REQUEST[$request])) {
 			$input = $_REQUEST[$request];
 		}
+		$tweets = json_decode(file_get_contents('app/data/twitter/' . $button[1] . '.json'), TRUE);
 		foreach($input as $raw_tw) {
 			$tw = explode('.', $raw_tw);
-			unset($tweets[$tw[0]][$tw[1]]);
-			array_splice($twitter_reg[$tw[0]], array_search($tw[1], $twitter_reg[$tw[0]]), 1);
+			unset($tweets[$tw[1]]);
 		}
-		addTwitterReg($tweets, $twitter_reg);
+		$tweets_file = fopen('app/data/twitter/' . $button[1] . '.json', 'w') or die('¡Error opening ' . $button[1] . '.json!');
+		fwrite($tweets_file, json_encode($tweets));
+		fclose($tweets_file);
+		if (sizeof($tweets) == 0) unlink('app/data/twitter/' . $button[1] . '.json')
 ?>
 		<META HTTP-EQUIV="Refresh" Content="0; URL=?results=tweets">
 <?php
@@ -189,28 +192,28 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 		closedir($open_root);
 	} elseif($results == 'tweets') {
 	
-		if (sizeof($tweets) > 0) {
-			foreach($tweets as $account => $content) {
-				if (sizeof($content) > 0) {
+		foreach(glob('app/data/twitter/*.json') as $json_file) {
+			$account = basename($json_file, '.json');
+			$content = json_decode(file_get_contents($json_file), TRUE);
+			if (sizeof($content) > 0) {
 ?>
-					<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
-					<table class="sortable" style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="results_edit.php" method="post" enctype="multipart/form-data">
-					<tr><th><input type="checkbox" id="checkall_edit_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('edit_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
+				<p><strong><?php echo 'Tweets: @' . $account; ?></strong> <a class="toggle" id="<?php echo 'tweets' . $account . 'toggle';?>" href="javascript:showhide('<?php echo 'tweets' . $account;?>');">+</a></p>
+				<table class="sortable" style="display: none;" id="<?php echo 'tweets' . $account;?>"><form action="results_edit.php" method="post" enctype="multipart/form-data">
+				<tr><th><input type="checkbox" id="checkall_edit_tweets_<?php echo utf8_encode($account);?>" onchange="checkAllElements('edit_tweets_<?php echo utf8_encode($account);?>')"></th><th class="tweet-cell">Date</th><th>Tweet</th><th>Keywords</th><th>Favs</th><th>RT</th></tr>
 <?php
-					foreach($content as $tweet_id => $tweet) {
+				foreach($content as $tweet_id => $tweet) {
 ?>
-						<tr><td><input type="checkbox" name="edit_tweets_<?php echo utf8_encode($account);?>[]" value="<?php echo $account . '.' . $tweet[4]?>"></td><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td><?php echo $tweet[8]; ?></td><td><?php echo $tweet[9]; ?></td></tr>
+					<tr><td><input type="checkbox" name="edit_tweets_<?php echo utf8_encode($account);?>[]" value="<?php echo $account . '.' . $tweet[4]?>"></td><td class="left-col-tw"><?php echo tweetDateFormatTable($tweet[0]); ?></td><td class="left-col"><?php echo stripslashes($tweet[3]); ?></td><td><?php echo static_tweet_keywords_matches($tweet[3]); ?></td><td><?php echo $tweet[8]; ?></td><td><?php echo $tweet[9]; ?></td></tr>
 <?php
-					}
-					
-?>
-					</table>
-					<table class="sorttable-lit" style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
-					<tr><td class="button"><button type="submit" class="amp"  name="delete_button" value="tweets.<?php echo utf8_encode($account); ?>">Delete</button></td></tr>
-					</form></table>
-<?php
-					
 				}
+				
+?>
+				</table>
+				<table class="sorttable-lit" style="display: none;" id="<?php echo 'tweets' . $account . 'delete'; ?>">
+				<tr><td class="button"><button type="submit" class="amp"  name="delete_button" value="tweets.<?php echo utf8_encode($account); ?>">Delete</button></td></tr>
+				</form></table>
+<?php
+				
 			}
 		}
 	}

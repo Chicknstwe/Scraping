@@ -117,6 +117,7 @@ public function setSteps($count)
 
 	public function defineBar($barColour = NULL, $textColour = NULL)
 	{
+		echo 'defineBar';
 
 
 		if(isset($barColour))

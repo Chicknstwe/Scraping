@@ -59,26 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				  if(substr($url, 0, 4) != 'http') {
 					  $url = 'http://' . $url;
 				  }
-				  $exists = false;
-				  $size = sizeof($websites);
-				  $i=0;
-				  while ($i < $size) {
-					  if ($url == $websites[$i] || $name == $names[$websites[$i]]) {
-						  $exists = true;
-					  }
-					  $i++;
-				  }
-				  if (!$exists) {
+				  if (!in_array($url, $websites)) {
 					  array_push($websites, $url);
 					  $names[$url] = $name;
-					  addResources($websites, $names, $keywords, $twitter_accs);
+					  $resources_file = fopen('app/data/resources.json', 'w') or die('Error opening resources.json');
+					  fwrite($resources_file, json_encode(array('websites' => $websites, 'names' => $names, 'keywords' => $keywords, 'twitter_accs' => $twitter_accs)));
+					  fclose($resources_file);
 					  if ($websites[sizeof($websites) - 1] == $url &&  $names[$websites[sizeof($websites) - 1]] == $name) {
 						  $output = "The new web has been added.";
 					  } else {
 						  $output = "The name or url has not been added.";
 					  }	  
-					  
-
 				  } else {
 					  $output = "The name or the url is already in the registers..";
 				  }
@@ -88,7 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			  $delete_name_test = $names[$websites[$web_select]];
 			  unset($names[$websites[$web_select]]);
 			  array_splice($websites, $web_select, 1);
-			  addResources($websites, $names, $keywords, $twitter_accs);
+			  unlink('app/data/web/' . $delete_name_test . '.json');
+			  $resources_file = fopen('app/data/resources.json', 'w') or die('Error opening resources.json');
+			  fwrite($resources_file, json_encode(array('websites' => $websites, 'names' => $names, 'keywords' => $keywords, 'twitter_accs' => $twitter_accs)));
+			  fclose($resources_file);
 			  if (sizeof($websites) > $web_select) {
 				  if ($websites[$web_select] != $delete_web_test && $names[$websites[$web_select]] != $delete_name_test) {
 					  $output = "The website has been deleted successfully.";
@@ -122,7 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			  $new_oauth_secret = $_REQUEST["twitter_oauth_secret"];
 			  $new_consumer = $_REQUEST["twitter_consumer"];
 			  $new_consumer_secret = $_REQUEST["twitter_consumer_secret"];
-			  addTwitterDevCredentials($new_oauth, $new_oauth_secret, $new_consumer, $new_consumer_secret);
+			  $twitter_auth_file = fopen('app/data/twitter_auth.json', 'w') or die('Error opening twitter_auth.json');
+			  fwrite($twitter_auth_file, json_encode(array('oauth_access_token' => $new_oauth, 'oauth_access_token_secret' => $new_oauth_secret, 'consumer_key' => $new_consumer, 'consumer_secret' => $new_consumer_secret)));
+			  fclose($twitter_auth_file);
 			  $output = "Your new twitter dev credentials have been saved.";
 		  }
 		  break;
@@ -136,25 +132,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		  }
 		  
 		  if ($_REQUEST["twitter_new"] != "") {
-				  if (!array_key_exists($twitter, $tweets)) {
-					  $tweets[$twitter] = array();
-					  array_push($twitter_accs, $twitter);
-					  addTwitterReg($tweets, $twitter_reg);
-					  addResources($websites, $names, $keywords, $twitter_accs);
-					  if (in_array($twitter, array_keys($tweets))) {
-						  $output = "The account has been added successfully.";
-					  } else {
-						  $output = "The account has not been added.";
-					  }	  
-				  } else {
-					  $output = "The account is already in the register.";
+			  if (!in_array($twitter, $twitter_accs)) {
+				  if (!file_exists('app/data/twitter/' . $twitter . '.json')) {
+					  $new_json = fopen('app/data/twitter/' . $twitter . '.json', 'w') or die('The account data file has not been created.');
+					  fwrite($new_json, '[]');
+					  fclose($new_json);
 				  }
+				  array_push($twitter_accs, $twitter);
+				  $resources_file = fopen('app/data/resources.json', 'w') or die('Error opening resources.json');
+				  fwrite($resources_file, json_encode(array('websites' => $websites, 'names' => $names, 'keywords' => $keywords, 'twitter_accs' => $twitter_accs)));
+				  fclose($resources_file);
+				  $output = "The account has been added successfully.";
+			  } else {
+				  $output = "The account is already in the register.";
+			  }
 		  } elseif ($twitter_select > -1 && $twitter_select !== '') {
-			  array_splice($tweets, $twitter_select, 1);
+			  $temp_twitter_acc = $twitter_accs[$twitter_select];
+			  unlink('app/data/twitter/' . $temp_twitter_acc . '.json');
+			  
 			  array_splice($twitter_accs, $twitter_select, 1);
-			  addTwitterReg($tweets, $twitter_reg);
-			  addResources($websites, $names, $keywords, $twitter_accs);
-			  if (!array_key_exists($twitter_select, $tweets)) {
+			  $resources_file = fopen('app/data/resources.json', 'w') or die('Error opening resources.json');
+			  fwrite($resources_file, json_encode(array('websites' => $websites, 'names' => $names, 'keywords' => $keywords, 'twitter_accs' => $twitter_accs)));
+			  fclose($resources_file);
+			  if (!file_exists('/app/data/twitter/' . $temp_twitter_acc . '.json')) {
 				  $output = "The account has been deleted successfully.";
 			  } else {
 				  $output = "The account has not been deleted.";
@@ -182,7 +182,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				  }
 				  if (!$exists) {
 					  array_push($keywords, $keyword);
-					  addResources($websites, $names, $keywords, $twitter_accs);
+					  $resources_file = fopen('app/data/resources.json', 'w') or die('Error opening resources.json');
+					  fwrite($resources_file, json_encode(array('websites' => $websites, 'names' => $names, 'keywords' => $keywords, 'twitter_accs' => $twitter_accs)));
+					  fclose($resources_file);
 					  if ($keywords[sizeof($keywords) - 1] == $keyword) {
 						  $output = "The keyword has been added successfully.";
 					  } else {
@@ -196,7 +198,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		  } elseif ($keyword_select > -1 && $keyword_select !== '') {
 			  $delete_test = $keywords[$keyword_select];
 			  array_splice($keywords, $keyword_select, 1);
-			  addResources($websites, $names, $keywords, $twitter_accs);
+			  $resources_file = fopen('app/data/resources.json', 'w') or die('Error opening resources.json');
+			  fwrite($resources_file, json_encode(array('websites' => $websites, 'names' => $names, 'keywords' => $keywords, 'twitter_accs' => $twitter_accs)));
+			  fclose($resources_file);
 			  if (sizeof($keywords) > $keyword_select) {
 				  if ($keywords[$keyword_select] != $delete_test) {
 					  $output = "The keyword has been deleted successfully.";
@@ -210,6 +214,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		  break;
 	}
 }
+
+// Get all resources
+$json_resources = json_decode(file_get_contents('app/data/resources.json'), TRUE);
+$websites = $json_resources['websites'];
+$names = $json_resources['names'];
+$keywords = $json_resources['keywords'];
+$twitter_accs = $json_resources['twitter_accs'];
+
+// Get all twitter oauth tokens
+$json_twitter_auth = json_decode(file_get_contents('app/data/twitter_auth.json'), TRUE);
+$oauth_access_token = $json_twitter_auth['oauth_access_token'];
+$oauth_access_token_secret = $json_twitter_auth['oauth_access_token_secret'];
+$consumer_key = $json_twitter_auth['consumer_key'];
+$consumer_secret = $json_twitter_auth['consumer_secret'];
 ?>
 <br><br><br><table class="table-fill"><tr><th colspan=4>Settings</th></tr>
 <tr><form action="config.php" method="post" enctype="multipart/form-data"><td>

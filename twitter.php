@@ -108,18 +108,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$twitter_reg_temp = array();
 			$tweets_temp = array();
 			
+			if(!file_exists('app/data/twitter/' . $name . '.json')) {
+				$new_json = fopen('app/data/twitter/' . $name . '.json', 'w') or die('!Error opening ' . $name . '.json¡');
+				fwrite($new_json, '[]');
+				fclose($new_json);
+			}
+			
+			$tweets = json_decode(file_get_contents('app/data/twitter/' . $name . '.json'), TRUE);
+			$twitter_reg = array_keys($tweets);
+			
 			if(sizeof($rawdata) > 0) {
 				save_avatar($rawdata[array_keys($rawdata)[0]][6]);
 			}
 			
 			if((isset($_POST['only_new']) && $_POST['only_new'] == 'Yes') && (isset($_POST['only_keyword']) && $_POST['only_keyword'] == 'Yes')) {
 				foreach($rawdata as $tweet) {
-					if((!array_key_exists($tweet[2], $twitter_reg) || !in_array($tweet[4], $twitter_reg[$tweet[2]])) && hasKeyword($tweet[3], $selected_keywords)) {
-						$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
-						if(!in_array($tweet[2], $twitter_reg_temp)) {
-							$twitter_reg_temp[$tweet[2]] = array();
-						}
-						array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
+					if(!in_array($tweet[4], $twitter_reg) && hasKeyword($tweet[3], $selected_keywords)) {
+						
+						$tweets_temp[$tweet[4]] = $tweet;
 						
 						$keyword_matches++;
 						$new_tweets_found++;
@@ -128,12 +134,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 				}
 			} elseif(isset($_POST['only_new']) && $_POST['only_new'] == 'Yes') {
 				foreach($rawdata as $tweet) {
-					if(!array_key_exists($tweet[2], $twitter_reg) || !in_array($tweet[4], $twitter_reg[$tweet[2]])) {
-						$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
-						if(!array_key_exists($tweet[2], $twitter_reg_temp)) {
-							$twitter_reg_temp[$tweet[2]] = array();
-						}
-						array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
+					if(!in_array($tweet[4], $twitter_reg)) {
+						$tweets_temp[$tweet[4]] = $tweet;
+						
 						$new_tweets_found++;
 					}
 					$tweets_searched++;
@@ -141,30 +144,25 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 			} elseif(isset($_POST['only_keyword']) && $_POST['only_keyword'] == 'Yes') {
 				foreach($rawdata as $tweet) {
 					if(hasKeyword($tweet[3], $selected_keywords)) {
-						$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
-						if(!array_key_exists($tweet[2], $twitter_reg_temp)) {
-							$twitter_reg_temp[$tweet[2]] = array();
-						}
-						array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
+						$tweets_temp[$tweet[4]] = $tweet;
 						$keyword_matches++;
 					}
 					$tweets_searched++;
 				}
 			} else {
 				foreach($rawdata as $tweet) {
-					$tweets_temp[$tweet[2]][$tweet[4]] = $tweet;
-					if(!array_key_exists($tweet[2], $twitter_reg_temp)) {
-						$twitter_reg_temp[$tweet[2]] = array();
-					}
-					array_push($twitter_reg_temp[$tweet[2]], $tweet[4]);
+					$tweets_temp[$tweet[4]] = $tweet;
+					
 					$tweets_searched++;
 				}
 				
 			}	
 			
 			$tweets = array_merge_recursive($tweets, $tweets_temp);
-			$twitter_reg = array_merge_recursive($twitter_reg, $twitter_reg_temp);
-			addTwitterReg($tweets, $twitter_reg);
+			
+			$tweets_file = fopen('app/data/twitter/' . $name . '.json', 'w') or die('!Error opening ' . $name . '.json¡');
+			fwrite($tweets_file, json_encode($tweets));
+			fclose($tweets_file);
 			
 			if (isset($_POST['show_info']) && $_POST['show_info'] == 'Yes') {
 ?>
